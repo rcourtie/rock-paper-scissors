@@ -1,19 +1,19 @@
+// Depdencies
 var express = require('express');
 var app = express();
-var port = 3700;
 var uuid = require('node-uuid');
+var mongoose = require('mongoose');
+
+// Models
+require(__dirname + '/app/Models/game.js');
+var Game = mongoose.model('Game');
+
+// Presets
 var databaseUrl = 'rps';
 var collections = ['games'];
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/rps');
+var port = 3700;
 
-var Game = mongoose.model('Game', {
-  id: String,
-  players: [{
-    id: String
-  }]
-});
-
+// Middleware
 var pid = function(req, res, next) {
   if (!req.cookies.pid) {
     res.cookie('pid', uuid.v4());
@@ -21,12 +21,14 @@ var pid = function(req, res, next) {
   next();
 };
 
+// Set up the app
 app.set('views', __dirname + '/tpl');
 app.set('view engine', "jade");
 app.engine('jade', require('jade').__express);
 app.use(express.static(__dirname + '/public'));
 app.use(express.cookieParser());
 app.use(pid);
+mongoose.connect('mongodb://localhost/rps');
 
 // Routes
 app.get("/", function(req, res){
